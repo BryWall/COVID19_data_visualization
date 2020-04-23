@@ -16,7 +16,7 @@ function updateMap(url) {
     echarts.dispose(dom);
     var chart = echarts.init(dom);
     chart.showLoading();
-    $.get(url, function (data) {
+    $.get(url, (data) => {
         chart.hideLoading();
         var lines = data.split('\n');
         var result = [];
@@ -45,7 +45,7 @@ function updateMap(url) {
         }
         console.log(result);
 
-        var options = result.map(function (day) {
+        var options = result.map( (day) => {
             return {
                 series: {
                     data: day
@@ -61,7 +61,7 @@ function updateMap(url) {
                 playInterval: 500,
                 symbolSize: 4,
                 tooltip: {
-                    formatter: function (params) {
+                    formatter: (params) => {
                         return params.name;
                     }
                 },
@@ -89,8 +89,8 @@ function updateMap(url) {
         baseOption: {
             tooltip: {
                 show: true,
-                formatter: function (params) {
-                    return params.value[3] + ':' + params.value[2];
+                formatter:  (params) => {
+                    return params.value[3] + ' : ' + params.value[2];
                 }
             },
             series: [{
@@ -98,12 +98,12 @@ function updateMap(url) {
                 animation: false,
                 coordinateSystem: 'leaflet',
                 data: [],
-                symbolSize: function (value) {
+                symbolSize: (value) => {
                     return value[2] > 0 ? Math.log(value[2]) * 3 : 0;
                 },
                 itemStyle: {
                     color: 'red',
-                    borderWidth: 2,
+                    borderWidth: 1,
                     borderColor: 'rgba(255, 255, 255, 0.5)'
                 }
             }],
@@ -112,25 +112,22 @@ function updateMap(url) {
                 min: 0,
                 max: 300,
                 inRange: {
-                    color: ['orange', 'red'],
-                    opacity: [0.5, 0.8]
+                    color: ['orange','red'],
+                    opacity: [0.3, 0.7]
                 },
                 dimension: 2
             },
             leaflet: {
                 center: [0, 40],
-                roam: true,
-                tiles: [{
-                    urlTemplate: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
-                }]
+                roam: true
             }
         }
     });
 }
 
-window.addEventListener('load', function () {
+window.addEventListener('load', () => {
     updateMap(confirmed_url);
     confirmed_button.onclick = () => { updateMap(confirmed_url) }
     deaths_button.onclick = () => { updateMap(deaths_url) }
-    recovered_button.onclick = () => { updateMap(deaths_url) }
+    recovered_button.onclick = () => { updateMap(recovered_url) }
 })
