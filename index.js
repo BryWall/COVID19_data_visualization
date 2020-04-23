@@ -1,6 +1,3 @@
-var dom = document.getElementById('main');
-
-var chart = echarts.init(dom);
 var confirmed_button = document.getElementById("confirmed");
 var deaths_button = document.getElementById("deaths");
 var recovered_button = document.getElementById("recovered");
@@ -16,9 +13,9 @@ const recovered_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19
 
 
 
-function updateMap(url) {
-    echarts.dispose(dom);
-    var chart = echarts.init(dom);
+function updateMap(url, map) {
+    echarts.dispose(map);
+    var chart = echarts.init(map);
     chart.showLoading();
     $.get(url, (data) => {
         chart.hideLoading();
@@ -47,8 +44,6 @@ function updateMap(url) {
                 }
             }
         }
-        console.log(result);
-
         var options = result.map( (day) => {
             return {
                 series: {
@@ -129,9 +124,123 @@ function updateMap(url) {
     });
 }
 
+
+
+function getDataNow() {
+    //appel ajax
+    var dataUrl = $.ajax({
+        url: "https://coronavirus-tracker-api.herokuapp.com/v2/locations",
+        dataType: "json",
+        async: false
+    }).responseText;
+    //transformation en json
+    var jsonData = JSON.parse(dataUrl);
+    //initialisation variables
+    var data = {};
+    data.latest = jsonData.latest;
+    console.log(data.latest);
+    data.locations = [];
+    var lastCountry = "";
+    jsonData.locations.forEach(location => {
+        //initialisation des variables de location
+        let confirmed = location.latest.confirmed;
+        let deaths= location.latest.deaths;
+        let country  = location.country;
+        let population = location.country_population;
+        //si nouveau pays
+        if(country != lastCountry) {
+            data.locations.push({
+                "country": country,
+                "population" : population,
+                "confirmed" : confirmed,
+                "deaths" : deaths
+            });
+            //changement dernier pays
+            lastCountry = country;
+        }
+        else{
+            //récupération country déjà présent et je l'enlève de la list
+            let countryData = data.locations.pop();
+            //je la remplace par la nouvelle valeur
+            data.locations.push({
+                "country": country,
+                "population" : population,
+                "confirmed" : countryData.confirmed + confirmed,
+                "deaths" : countryData.deaths + deaths
+            });
+        }
+    });
+    return data;
+}
+
+
+function drawPieChart(pie) {
+    var chart = echarts.init(pie);
+    var data = getDataNow();
+    var option = {
+        backgroundColor: '#2c343c',
+
+        title: {
+            text: 'Représentation des cas dans le monde',
+            left: 'center',
+            top: 20,
+            textStyle: {
+                color: '#ccc'
+            }
+        },
+
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        series: [
+            {
+                name: 'Représentation des cas',
+                type: 'pie',
+                radius: '55%',
+                center: ['50%', '50%'],
+                data: [
+                    {value: data.latest.confirmed, name: 'Confirmés'},
+                    {value: data.latest.deaths, name: 'Morts'},
+                    {value: data.latest.recovered, name: 'Guéris'}
+                ].sort((a, b) => { return a.value - b.value; }),
+                label: {
+                    color: 'rgba(255, 255, 255, 0.3)'
+                },
+                labelLine: {
+                    lineStyle: {
+                        color: 'rgba(255, 255, 255, 0.3)'
+                    },
+                    smooth: 0.2,
+                    length: 10,
+                    length2: 20
+                },
+                itemStyle: {
+                    color: '#c23531',
+                    shadowBlur: 200,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                },
+
+                animationType: 'scale',
+                animationEasing: 'elasticOut',
+                animationDelay: function (idx) {
+                    return Math.random() * 200;
+                }
+            }
+        ]
+    };
+    chart.setOption(option);
+
+}
+
+
+
 window.addEventListener('load', () => {
-    updateMap(confirmed_url);
-    confirmed_button.onclick = () => { updateMap(confirmed_url) }
-    deaths_button.onclick = () => { updateMap(deaths_url) }
-    recovered_button.onclick = () => { updateMap(recovered_url) }
+    var map = document.getElementById('map');
+    var pie = document.getElementById('piechart');
+    updateMap(confirmed_url,map);
+    drawPieChart(pie);
+    confirmed_button.onclick = () => { updateMap(confirmed_url,map) }
+    deaths_button.onclick = () => { updateMap(deaths_url,map) }
+    recovered_button.onclick = () => { updateMap(recovered_url,map) }
 })
