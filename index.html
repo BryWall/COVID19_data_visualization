@@ -11,53 +11,118 @@
     <script src="node_modules/echarts-leaflet/dist/echarts-leaflet.js"></script>
     <script src="node_modules/jquery/dist/jquery.js"></script>
     <script src="node_modules/numeral/numeral.js"></script>
-
+    <script src="https://kit.fontawesome.com/f3ef138c33.js" crossorigin="anonymous"></script>
   </head>
 
   <body>
-    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Covid-19 Dashboard</a>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow mb-4 text-center">
+      <a class="navbar-brand col-sm-3 col-md-3 mr-0" href="#">COVID-19 DASHBOARD</a>
     </nav>
-    <div  class="chart border border-dark center">
-      <h2> Évolution de la propagation du Covid-19 </h2>
-      <label for="selectMapEvolution"> Choix de l'évolution : </label>
-      <div  id="selectMapEvolution" class="btn-group btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-secondary active">
-          <input type="radio" name="options" id="btn_confirmed" checked> Confirmés
-        </label>
-        <label class="btn btn-secondary">
-          <input type="radio" name="options" id="btn_deaths"> Morts
-        </label>
-        <label class="btn btn-secondary">
-          <input type="radio" name="options" id="btn_recovered"> Guéris
-        </label>
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-3 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  Dashboard <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#mapEvolution">
+                  <i class="fa fa-map-marked"></i> Propagation du virus
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#globalPieChart">
+                  <i class="fas fa-chart-pie"></i> Proportion des cas dans le Monde
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#CountryPieChart">
+                  <i class="fas fa-chart-pie"></i> Proportion des cas par pays
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  Reports
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                  Integrations
+                </a>
+              </li>
+            </ul>
+            <div class="chart text-center" style="margin-top : 20%">
+              <h3>Chiffres dans le monde</h3>
+              <h4>Cas confirmés</h4>
+              <P id="confirmed"></P>
+              <h4>Morts</h4>
+              <p id="deaths"></p>
+              <h4>Guéris</h4>
+              <p id="recovered"></p>
+              <h4>Pourcentage population</h4>
+              <p id="pourcentage"></p>
+            </div>
+          </div>
+
+        </nav>
+        <main role="main" class="col-md-8 ml-sm-auto col-lg-10 px-4">
+          <div class="chart mx-auto" style="width: 1000px;" id="mapEvolution">
+            <h2 class="text-center"> Propagation du Covid-19 </h2>
+            <div class="choix mx-auto" style="width: 40%;">
+              <label for="selectMapEvolution"> Choix du type : </label>
+              <div  id="selectMapEvolution" class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary active">
+                  <input type="radio" name="options" id="btn_confirmed" checked> Confirmés
+                </label>
+                <label class="btn btn-secondary">
+                  <input type="radio" name="options" id="btn_deaths"> Morts
+                </label>
+                <label class="btn btn-secondary">
+                  <input type="radio" name="options" id="btn_recovered"> Guéris
+                </label>
+              </div>
+            </div>
+            <div id= "map" class="mx-auto" style="height: 500px; width: 900px"></div>
+          </div>
+
+          <div class="dropdown-divider"></div>
+
+          <div class="chart mx-auto" id="globalPieChart" style="height: 500px; width: 900px"></div>
+
+          <div class="dropdown-divider"></div>
+
+          <div id="CountryPieChart" class="chart mx-auto" style="width: 1000px;">
+            <label for="countries">Choix du pays : </label>
+            <select id="countries"></select>
+            <div id="piechartCountries" class="mx-auto" style="height: 500px; width: 900px"></div>
+          </div>
+
+          <div class="dropdown-divider"></div>
+
+
+        </main>
       </div>
 
-      <div id= "map" style="height: 500px; width: 900px"></div>
-    </div>
-    <div class="chart border border-dark" id="piechart" style="height: 500px; width: 900px"></div>
-
-    <div class="chart border border-dark">
-      <label for="countries">Choix du pays : </label>
-      <select id="countries"></select>
-      <div id="piechartCountries" style="height: 500px; width: 900px"></div>
     </div>
 
-    <h2>Chiffres dans le monde</h2>
 
-    <h3>Cas confirmés</h3>
-    <h4 id="confirmed"></h4>
-    <h3>Morts</h3>
-    <h4 id="deaths"></h4>
-    <h3>Guéris</h3>
-    <h4 id="recovered"></h4>
-    <h3>Pourcentage de la population mondiale touchées</h3>
-    <h4 id="pourcentage"></h4>
-
-  <p>Sources : <br>
-    <a href="https://github.com/CSSEGISandData/COVID-19">CSSEGISandData</a> <br>
-    <a href="https://coronavirus-tracker-api.herokuapp.com/">coronavirus-tracker-api</a>
-  </p>
+    <footer class="text-muted col-md-8">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+        </p>
+        <p>Fait par Romain Defente et Bryan Wallez</p>
+        <p> Data Sources :
+          <a href="https://github.com/CSSEGISandData/COVID-19">CSSEGISandData</a> /
+          <a href="https://coronavirus-tracker-api.herokuapp.com/">coronavirus-tracker-api</a>
+        </p>      </div>
+    </footer>
 
     <script src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
