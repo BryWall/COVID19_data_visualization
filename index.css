@@ -104,3 +104,20 @@ body {
     border-color: transparent;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+
+.chart {
+    padding: 45px 0;
+}
+
+.number {
+    font-size: 30px;
+    color : red;
+}
+
+.nb_recovered {
+    color : green;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}

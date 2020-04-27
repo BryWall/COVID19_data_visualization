@@ -6,20 +6,63 @@ const recovered_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_serie
 const confirmed_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
 const deaths_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv';
 const recovered_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
+const debut_date = new Date("1/22/2020");
+const date_now = new Date();
+console.log(moment(debut_date).format("M/DD/YY"));
 
 
 
 
+function CSVToArray(csvData, delimiter) {
+    delimiter = (delimiter || ",");
+    var pattern = new RegExp((
+        "(\\" + delimiter + "|\\r?\\n|\\r|^)" +
+        "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+        "([^\"\\" + delimiter + "\\r\\n]*))"), "gi");
+    var data = [[]];
+    var matches = null;
+    while (matches = pattern.exec(csvData)) {
+        var matchedDelimiter = matches[1];
+        if (matchedDelimiter.length && (matchedDelimiter != delimiter)) {
+            data.push([]);
+        }
+        if (matches[2]) {
+            var matchedDelimiter = matches[2].replace(
+                new RegExp("\"\"", "g"), "\"");
+        } else {
+            var matchedDelimiter = matches[3];
+        }
+        data[data.length - 1].push(matchedDelimiter);
+    }
+    return (data);
+}
 
+function CSVToJSON(csvData) {
+    var data = CSVToArray(csvData);
+    var objData = [];
+    for (var i = 1; i < data.length; i++) {
+        objData[i - 1] = {};
+        for (var k = 0; k < data[0].length && k < data[i].length; k++) {
+            var key = data[0][k];
+            objData[i - 1][key] = data[i][k]
+        }
+    }
+    var jsonData = JSON.stringify(objData);
+    jsonData = jsonData.replace(/},/g, "},\r\n");
+    return jsonData;
+}
 
 function updateMap(url, map) {
     echarts.dispose(map);
     var chart = echarts.init(map);
     chart.showLoading();
     $.get(url, (data) => {
+        let date = debut_date;
+        let dataJson = CSVToJSON(data);
         chart.hideLoading();
         var lines = data.split('\n');
         var result = [];
+        var res = [];
         for (var i = 1; i < lines.length; ++i) {
             var columns = lines[i].split(',');
 
@@ -43,6 +86,15 @@ function updateMap(url, map) {
                 }
             }
         }
+        JSON.parse(dataJson).forEach( local => {
+            while(local[moment(date).format("M/DD/YY")] && (date < date_now)) {
+                res.push([local.Lat, local.Long, local[moment(date).format("M/DD/YY")], local["Province/State"] + ' ' + local["Country/Region"]]);
+                date.setDate(date.getDate() + 1);
+            }
+            date = new Date("1/22/2020");
+        })
+        console.log(res == result);
+
         var options = result.map( (day) => {
             return {
                 series: {
@@ -56,8 +108,8 @@ function updateMap(url, map) {
                 axisType: 'category',
                 data: lines[0].split(',').slice(4),
                 autoPlay: true,
-                playInterval: 500,
-                symbolSize: 4,
+                playInterval: 600,
+                symbolSize: 5,
                 tooltip: {
                     formatter: (params) => {
                         return params.name;
@@ -67,13 +119,15 @@ function updateMap(url, map) {
                     color: '#ccc'
                 },
                 lineStyle: {
-                    color: '#eee'
+                    color: '#eee',
+                    width: 4,
                 },
                 label: {
                     color: '#999'
                 },
                 checkpointStyle: {
-                    color: 'red'
+                    color: 'black',
+                    borderColor: '#999'
                 },
                 controlStyle: {
                     borderColor: '#bbb'
@@ -85,6 +139,15 @@ function updateMap(url, map) {
 
     chart.setOption({
         baseOption: {
+            title: {
+                text: "Propagation du Covid-19",
+                left: 'center',
+                top: 20,
+                textStyle: {
+                    color: '#000',
+                    fontSize: 25
+                }
+            },
             tooltip: {
                 show: true,
                 formatter:  (params) => {
@@ -133,6 +196,7 @@ function updateMap(url, map) {
 
 function getDataNow() {
     //appel ajax
+    var headers = new Headers();
     var dataUrl = $.ajax({
         url: "https://coronavirus-tracker-api.herokuapp.com/v2/locations",
         dataType: "json",
@@ -188,11 +252,12 @@ function drawPieChart(pie) {
         backgroundColor: '#2c343c',
 
         title: {
-            text: 'Représentation des cas dans le monde',
+            text: 'Proportion des cas dans le monde',
             left: 'center',
             top: 20,
             textStyle: {
-                color: '#ccc'
+                color: '#ccc',
+                fontSize: 25
             }
         },
         tooltip: {
@@ -203,7 +268,7 @@ function drawPieChart(pie) {
         },
         series: [
             {
-                name: 'Représentation des cas',
+                name: 'Proportion des cas',
                 type: 'pie',
                 radius: '55%',
                 center: ['50%', '50%'],
@@ -264,11 +329,12 @@ function drawPieChartCountries(pie, country) {
         backgroundColor: '#2c343c',
 
         title: {
-            text: 'Représentation des cas dans le pays : ' + dataCountry.country,
+            text: 'Proportion des cas dans le pays : ' + dataCountry.country,
             left: 'center',
             top: 20,
             textStyle: {
-                color: '#ccc'
+                color: '#ccc',
+                fontSize : 25
             }
         },
         tooltip: {
@@ -279,7 +345,7 @@ function drawPieChartCountries(pie, country) {
         },
         series: [
             {
-                name: 'Représentation des cas',
+                name: 'Proportion des cas',
                 type: 'pie',
                 radius: '55%',
                 center: ['50%', '50%'],

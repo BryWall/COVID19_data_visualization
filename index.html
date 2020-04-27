@@ -11,6 +11,7 @@
     <script src="node_modules/echarts-leaflet/dist/echarts-leaflet.js"></script>
     <script src="node_modules/jquery/dist/jquery.js"></script>
     <script src="node_modules/numeral/numeral.js"></script>
+    <script src="node_modules/moment/moment.js"></script>
     <script src="https://kit.fontawesome.com/f3ef138c33.js" crossorigin="anonymous"></script>
   </head>
 
@@ -44,36 +45,26 @@
                   <i class="fas fa-chart-pie"></i> Proportion des cas par pays
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                  Reports
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                  Integrations
-                </a>
-              </li>
             </ul>
-            <div class="chart text-center" style="margin-top : 20%">
+
+            <div class="dropdown-divider"></div>
+
+            <div class="text-center" style="margin-top : 20%">
               <h3>Chiffres dans le monde</h3>
               <h4>Cas confirmés</h4>
-              <P id="confirmed"></P>
+              <p id="confirmed" class="font-weight-bolder number"></p>
               <h4>Morts</h4>
-              <p id="deaths"></p>
+              <p id="deaths" class="font-weight-bolder number"></p>
               <h4>Guéris</h4>
-              <p id="recovered"></p>
+              <p id="recovered" class="font-weight-bolder number nb_recovered"></p>
               <h4>Pourcentage population</h4>
-              <p id="pourcentage"></p>
+              <p id="pourcentage" class="font-weight-bolder number"></p>
             </div>
           </div>
 
         </nav>
         <main role="main" class="col-md-8 ml-sm-auto col-lg-10 px-4">
           <div class="chart mx-auto" style="width: 1000px;" id="mapEvolution">
-            <h2 class="text-center"> Propagation du Covid-19 </h2>
             <div class="choix mx-auto" style="width: 40%;">
               <label for="selectMapEvolution"> Choix du type : </label>
               <div  id="selectMapEvolution" class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -98,9 +89,11 @@
           <div class="dropdown-divider"></div>
 
           <div id="CountryPieChart" class="chart mx-auto" style="width: 1000px;">
-            <label for="countries">Choix du pays : </label>
-            <select id="countries"></select>
-            <div id="piechartCountries" class="mx-auto" style="height: 500px; width: 900px"></div>
+            <div class="col-md-9 mx-auto text-center">
+              <label for="countries" style="font-size: 20px;">Choix du pays : </label>
+              <select class="custom-select col-md-3" id="countries"></select>
+            </div>
+            <div id="piechartCountries" class="mx-auto pt-4" style="height: 500px; width: 900px"></div>
           </div>
 
           <div class="dropdown-divider"></div>
@@ -112,8 +105,8 @@
     </div>
 
 
-    <footer class="text-muted col-md-8">
-      <div class="container">
+    <footer class="text-muted">
+      <div class="container col-md-6">
         <p class="float-right">
           <a href="#">Back to top</a>
         </p>
