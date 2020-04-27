@@ -18,14 +18,20 @@
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
       <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Covid-19 Dashboard</a>
     </nav>
-    <div id="mapEvolution" class="chart border border-dark center">
+    <div  class="chart border border-dark center">
       <h2> Évolution de la propagation du Covid-19 </h2>
       <label for="selectMapEvolution"> Choix de l'évolution : </label>
-      <select id="selectMapEvolution">
-        <option value="confirmed">Confirmés</option>
-        <option value="deaths">Morts</option>
-        <option value="recovered">Guéris</option>
-      </select>
+      <div  id="selectMapEvolution" class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-secondary active">
+          <input type="radio" name="options" id="btn_confirmed" checked> Confirmés
+        </label>
+        <label class="btn btn-secondary">
+          <input type="radio" name="options" id="btn_deaths"> Morts
+        </label>
+        <label class="btn btn-secondary">
+          <input type="radio" name="options" id="btn_recovered"> Guéris
+        </label>
+      </div>
 
       <div id= "map" style="height: 500px; width: 900px"></div>
     </div>

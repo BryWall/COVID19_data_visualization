@@ -335,6 +335,9 @@ function getDataGlobal(confirmed,deaths,recovered,pourcentage){
 
 window.addEventListener('load', () => {
     //init var
+    var confirmed_button = document.getElementById("btn_confirmed");
+    var deaths_button = document.getElementById("btn_deaths");
+    var recovered_button = document.getElementById("btn_recovered");
     var map = document.getElementById('map');
     var pie = document.getElementById('piechart');
     var confirmed = document.getElementById('confirmed');
@@ -352,12 +355,7 @@ window.addEventListener('load', () => {
     getDataGlobal(confirmed,deaths,recovered,pourcentage);
     //events
     selectPieCountries.onchange = () => { drawPieChartCountries(pieCountries, selectPieCountries.value)};
-    selectMapEvolution.onchange = () => {
-        if(selectMapEvolution.value == "confirmed")
-            updateMap(confirmed_url,map);
-        if(selectMapEvolution.value == "deaths")
-            updateMap(deaths_url,map);
-        if(selectMapEvolution.value == "recovered")
-            updateMap(recovered_url,map);
-    }
+    confirmed_button.onclick = () => { updateMap(confirmed_url,map) }
+    deaths_button.onclick = () => { updateMap(deaths_url,map) }
+    recovered_button.onclick = () => { updateMap(recovered_url,map) }
 })
