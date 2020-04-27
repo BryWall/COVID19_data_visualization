@@ -94,7 +94,7 @@ function updateMap(url, map) {
                         var mode = "morts";
                     if(url == recovered_url)
                         var mode = "guéris";
-                    return `${params.value[3]} : ${params.value[2]} ${mode}`;
+                    return `${params.value[3]} : ${numeral(params.value[2]).format('0,0')} ${mode}`;
                 }
             },
             series: [{
@@ -149,6 +149,7 @@ function getDataNow() {
         //initialisation des variables de location
         let confirmed = location.latest.confirmed;
         let deaths= location.latest.deaths;
+        let recovered = location.latest.recovered;
         let country  = location.country;
         let population = location.country_population;
         //si nouveau pays
@@ -157,6 +158,7 @@ function getDataNow() {
                 "country": country,
                 "population" : population,
                 "confirmed" : confirmed,
+                "recovered" : recovered,
                 "deaths" : deaths
             });
             //changement dernier pays
@@ -170,7 +172,8 @@ function getDataNow() {
                 "country": country,
                 "population" : population,
                 "confirmed" : countryData.confirmed + confirmed,
-                "deaths" : countryData.deaths + deaths
+                "deaths" : countryData.deaths + deaths,
+                "recovered" : countryData.recovered = recovered
             });
         }
     });
@@ -192,10 +195,9 @@ function drawPieChart(pie) {
                 color: '#ccc'
             }
         },
-
         tooltip: {
             trigger: 'item',
-            formatter: '{a} <br/>{b} : {c} ({d}%)'
+            formatter: '{b} : {c} ({d}%)'
         },
         series: [
             {
@@ -209,7 +211,8 @@ function drawPieChart(pie) {
                     {value: data.latest.recovered, name: 'Guéris'}
                 ].sort((a, b) => { return a.value - b.value; }),
                 label: {
-                    color: 'rgba(255, 255, 255, 0.3)'
+                    color: 'rgba(255, 255, 255, 0.3)',
+                    formatter : '{b} : {d}%'
                 },
                 labelLine: {
                     lineStyle: {
@@ -245,6 +248,7 @@ function selectCountries() {
         option.innerText = location.country;
         select.appendChild(option);
     })
+    select.value="France";
 }
 
 function getCountryFromData(country) {
@@ -265,10 +269,9 @@ function drawPieChartCountries(pie, country) {
                 color: '#ccc'
             }
         },
-
         tooltip: {
             trigger: 'item',
-            formatter: '{a} <br/>{b} : {c} ({d}%)'
+            formatter: '{b} : {c} ({d}%)'
         },
         series: [
             {
@@ -282,7 +285,8 @@ function drawPieChartCountries(pie, country) {
                     {value: dataCountry.recovered, name: 'Guéris'}
                 ].sort((a, b) => { return a.value - b.value; }),
                 label: {
-                    color: 'rgba(255, 255, 255, 0.3)'
+                    color: 'rgba(255, 255, 255, 0.3)',
+                    formatter : '{b} : {d}%'
                 },
                 labelLine: {
                     lineStyle: {
@@ -309,12 +313,30 @@ function drawPieChartCountries(pie, country) {
     chart.setOption(option);
 }
 
+function getDataGlobal(confirmed,deaths,recovered,pourcentage){
+    var data = getDataNow();
+    var population = 0;
+    data.locations.forEach(location => {
+        population+=location.population;
+    })
+    confirmed.innerHTML = numeral(data.latest.confirmed).format('0,0');
+    deaths.innerHTML = numeral(data.latest.deaths).format('0,0');
+    recovered.innerHTML = numeral(data.latest.recovered).format('0,0');
+    pourcentage.innerHTML = `${100 * ((data.latest.confirmed+data.latest.deaths+data.latest.recovered) / population).toPrecision(2)} %`
+
+
+}
+
 
 
 window.addEventListener('load', () => {
     //init var
     var map = document.getElementById('map');
     var pie = document.getElementById('piechart');
+    var confirmed = document.getElementById('confirmed');
+    var deaths = document.getElementById('deaths');
+    var recovered = document.getElementById('recovered');
+    var pourcentage = document.getElementById('pourcentage');
     var pieCountries = document.getElementById('piechartCountries');
     var selectPieCountries = document.getElementById('countries');
     var selectMapEvolution = document.getElementById('selectMapEvolution');
@@ -323,6 +345,7 @@ window.addEventListener('load', () => {
     drawPieChart(pie);
     selectCountries();
     drawPieChartCountries(pieCountries, selectPieCountries.value);
+    getDataGlobal(confirmed,deaths,recovered,pourcentage);
     //events
     selectPieCountries.onchange = () => { drawPieChartCountries(pieCountries, selectPieCountries.value)};
     selectMapEvolution.onchange = () => {

@@ -9,6 +9,7 @@
     <script src="node_modules/leaflet/dist/leaflet.js"></script>
     <script src="node_modules/echarts-leaflet/dist/echarts-leaflet.js"></script>
     <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/numeral/numeral.js"></script>
 
   </head>
 
@@ -29,6 +30,24 @@
 
     <select id="countries"></select>
     <div id="piechartCountries" style="height: 500px; width: 900px"></div>
+
+
+
+    <h2>Chiffres dans le monde</h2>
+
+    <h3>Cas confirmés</h3>
+    <h4 id="confirmed"></h4>
+    <h3>Morts</h3>
+    <h4 id="deaths"></h4>
+    <h3>Guéris</h3>
+    <h4 id="recovered"></h4>
+    <h3>Pourcentage de la population mondiale touchés</h3>
+    <h4 id="pourcentage"></h4>
+
+  <p>Sources : <br>
+    <a href="https://github.com/CSSEGISandData/COVID-19">CSSEGISandData</a> <br>
+    <a href="https://coronavirus-tracker-api.herokuapp.com/">coronavirus-tracker-api</a>
+  </p>
 
 
   </body>
