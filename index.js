@@ -123,7 +123,7 @@ function updateMap(url, map) {
             },
             leaflet: {
                 center: [0, 40],
-                roam: true
+                roam: false
             }
         }
     });
@@ -197,7 +197,9 @@ function drawPieChart(pie) {
         },
         tooltip: {
             trigger: 'item',
-            formatter: '{b} : {c} ({d}%)'
+            formatter: (params) => {
+                return `${params.name} : ${numeral(params.value).format('0,0')} (${params.percent}%)`;
+            }
         },
         series: [
             {
@@ -271,7 +273,9 @@ function drawPieChartCountries(pie, country) {
         },
         tooltip: {
             trigger: 'item',
-            formatter: '{b} : {c} ({d}%)'
+            formatter: (params) => {
+                return `${params.name} : ${numeral(params.value).format('0,0')} (${params.percent}%)`;
+            }
         },
         series: [
             {

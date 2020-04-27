@@ -4,7 +4,8 @@
     <meta charset="UTF-8"> 
 
     <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css">
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="index.css">
     <script src="node_modules/echarts/dist/echarts.min.js"></script>
     <script src="node_modules/leaflet/dist/leaflet.js"></script>
     <script src="node_modules/echarts-leaflet/dist/echarts-leaflet.js"></script>
@@ -14,24 +15,27 @@
   </head>
 
   <body>
-    <label for="selectMapEvolution"> Évolution des </label>
-    <select id="selectMapEvolution">
-      <option value="confirmed">confirmés</option>
-      <option value="deaths">morts</option>
-      <option value="recovered">Guéris</option>
-    </select>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Covid-19 Dashboard</a>
+    </nav>
+    <div id="mapEvolution" class="chart border border-dark center">
+      <h2> Évolution de la propagation du Covid-19 </h2>
+      <label for="selectMapEvolution"> Choix de l'évolution : </label>
+      <select id="selectMapEvolution">
+        <option value="confirmed">Confirmés</option>
+        <option value="deaths">Morts</option>
+        <option value="recovered">Guéris</option>
+      </select>
 
-    <div id= "map" style="height: 500px; width: 900px"></div>
-    <script src="index.js"></script>
-    <br>
-    <div id="piechart" style="height: 500px; width: 900px"></div>
+      <div id= "map" style="height: 500px; width: 900px"></div>
+    </div>
+    <div class="chart border border-dark" id="piechart" style="height: 500px; width: 900px"></div>
 
-    <br>
-
-    <select id="countries"></select>
-    <div id="piechartCountries" style="height: 500px; width: 900px"></div>
-
-
+    <div class="chart border border-dark">
+      <label for="countries">Choix du pays : </label>
+      <select id="countries"></select>
+      <div id="piechartCountries" style="height: 500px; width: 900px"></div>
+    </div>
 
     <h2>Chiffres dans le monde</h2>
 
@@ -49,6 +53,8 @@
     <a href="https://coronavirus-tracker-api.herokuapp.com/">coronavirus-tracker-api</a>
   </p>
 
-
+    <script src="index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   </body>
 </html>
