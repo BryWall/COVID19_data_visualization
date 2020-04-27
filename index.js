@@ -1,13 +1,14 @@
 var confirmed_button = document.getElementById("confirmed");
 var deaths_button = document.getElementById("deaths");
 var recovered_button = document.getElementById("recovered");
-const confirmed_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
+/**const confirmed_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
 const deaths_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv';
 const recovered_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
-/**const confirmed_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
+ **/
+const confirmed_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
 const deaths_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv';
 const recovered_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
-**/
+
 
 
 
@@ -138,7 +139,6 @@ function getDataNow() {
     //initialisation variables
     var data = {};
     data.latest = jsonData.latest;
-    console.log(data.latest);
     data.locations = [];
     var lastCountry = "";
     jsonData.locations.forEach(location => {
@@ -230,16 +230,96 @@ function drawPieChart(pie) {
         ]
     };
     chart.setOption(option);
+}
 
+function selectCountries() {
+    var select = document.getElementById('countries');
+    var data = getDataNow();
+    data.locations.forEach((location) => {
+        var option = document.createElement('option');
+        option.value = location.country;
+        option.innerText = location.country;
+        select.appendChild(option);
+    })
+}
+
+function getCountryFromData(country) {
+    return getDataNow().locations.find((data) => data.country == country);
+}
+
+function drawPieChartCountries(pie, country) {
+    var chart = echarts.init(pie);
+    var dataCountry = getCountryFromData(country);
+    var option = {
+        backgroundColor: '#2c343c',
+
+        title: {
+            text: 'Représentation des cas dans le pays : ' + dataCountry.country,
+            left: 'center',
+            top: 20,
+            textStyle: {
+                color: '#ccc'
+            }
+        },
+
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        series: [
+            {
+                name: 'Représentation des cas',
+                type: 'pie',
+                radius: '55%',
+                center: ['50%', '50%'],
+                data: [
+                    {value: dataCountry.confirmed, name: 'Confirmés'},
+                    {value: dataCountry.deaths, name: 'Morts'},
+                    {value: dataCountry.recovered, name: 'Guéris'}
+                ].sort((a, b) => { return a.value - b.value; }),
+                label: {
+                    color: 'rgba(255, 255, 255, 0.3)'
+                },
+                labelLine: {
+                    lineStyle: {
+                        color: 'rgba(255, 255, 255, 0.3)'
+                    },
+                    smooth: 0.2,
+                    length: 10,
+                    length2: 20
+                },
+                itemStyle: {
+                    color: '#c23531',
+                    shadowBlur: 200,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                },
+
+                animationType: 'scale',
+                animationEasing: 'elasticOut',
+                animationDelay: function (idx) {
+                    return Math.random() * 200;
+                }
+            }
+        ]
+    };
+    chart.setOption(option);
 }
 
 
 
 window.addEventListener('load', () => {
+    //init var
     var map = document.getElementById('map');
     var pie = document.getElementById('piechart');
+    var pieCountries = document.getElementById('piechartCountries');
+    var selectPieCountries = document.getElementById('countries');
+    //init charts
     updateMap(confirmed_url,map);
     drawPieChart(pie);
+    selectCountries();
+    drawPieChartCountries(pieCountries, selectPieCountries.value)
+    //events
+    selectPieCountries.onchange = () => { drawPieChartCountries(pieCountries, selectPieCountries.value)};
     confirmed_button.onclick = () => { updateMap(confirmed_url,map) }
     deaths_button.onclick = () => { updateMap(deaths_url,map) }
     recovered_button.onclick = () => { updateMap(recovered_url,map) }
