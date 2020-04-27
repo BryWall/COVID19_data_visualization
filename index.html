@@ -13,9 +13,12 @@
   </head>
 
   <body>
-    <button id="confirmed" type="button">confirmed</button>
-    <button id="deaths" type="button">deaths</button>
-    <button id="recovered" type="button">recovered</button>
+    <label for="selectMapEvolution"> Évolution des </label>
+    <select id="selectMapEvolution">
+      <option value="confirmed">confirmés</option>
+      <option value="deaths">morts</option>
+      <option value="recovered">Guéris</option>
+    </select>
 
     <div id= "map" style="height: 500px; width: 900px"></div>
     <script src="index.js"></script>

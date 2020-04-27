@@ -1,6 +1,4 @@
-var confirmed_button = document.getElementById("confirmed");
-var deaths_button = document.getElementById("deaths");
-var recovered_button = document.getElementById("recovered");
+
 /**const confirmed_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
 const deaths_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv';
 const recovered_url = 'data/COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
@@ -90,7 +88,13 @@ function updateMap(url, map) {
             tooltip: {
                 show: true,
                 formatter:  (params) => {
-                    return params.value[3] + ' : ' + params.value[2];
+                    if(url == confirmed_url)
+                        var mode = "confirmés";
+                    if(url == deaths_url)
+                        var mode = "morts";
+                    if(url == recovered_url)
+                        var mode = "guéris";
+                    return `${params.value[3]} : ${params.value[2]} ${mode}`;
                 }
             },
             series: [{
@@ -313,14 +317,20 @@ window.addEventListener('load', () => {
     var pie = document.getElementById('piechart');
     var pieCountries = document.getElementById('piechartCountries');
     var selectPieCountries = document.getElementById('countries');
+    var selectMapEvolution = document.getElementById('selectMapEvolution');
     //init charts
     updateMap(confirmed_url,map);
     drawPieChart(pie);
     selectCountries();
-    drawPieChartCountries(pieCountries, selectPieCountries.value)
+    drawPieChartCountries(pieCountries, selectPieCountries.value);
     //events
     selectPieCountries.onchange = () => { drawPieChartCountries(pieCountries, selectPieCountries.value)};
-    confirmed_button.onclick = () => { updateMap(confirmed_url,map) }
-    deaths_button.onclick = () => { updateMap(deaths_url,map) }
-    recovered_button.onclick = () => { updateMap(recovered_url,map) }
+    selectMapEvolution.onchange = () => {
+        if(selectMapEvolution.value == "confirmed")
+            updateMap(confirmed_url,map);
+        if(selectMapEvolution.value == "deaths")
+            updateMap(deaths_url,map);
+        if(selectMapEvolution.value == "recovered")
+            updateMap(recovered_url,map);
+    }
 })
