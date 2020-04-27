@@ -8,10 +8,15 @@ const deaths_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/ma
 const recovered_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
 const debut_date = new Date("1/22/2020");
 const date_now = new Date();
-console.log(moment(debut_date).format("M/DD/YY"));
+console.log(moment(debut_date).format("M/D/YY"));
 
 
 
+function getDataJsonFromCSV(url) {
+    $.get(url, (data) => {
+        return CSVToJSON(data);
+    })
+}
 
 function CSVToArray(csvData, delimiter) {
     delimiter = (delimiter || ",");
@@ -61,47 +66,28 @@ function updateMap(url, map) {
         let dataJson = CSVToJSON(data);
         chart.hideLoading();
         var lines = data.split('\n');
-        var result = [];
         var res = [];
-        for (var i = 1; i < lines.length; ++i) {
-            var columns = lines[i].split(',');
-
-            for (var j = 4; j < columns.length; ++j) {
-                var value = [
-                    //latitude
-                    columns[3],
-                    //longitude
-                    columns[2],
-                    //number
-                    columns[j],
-                    //province pays
-                    columns[0] + ' ' + columns[1]
-                ];
-                var id = j - 4;
-                if (result[id]) {
-                    result[id].push(value);
-                }
-                else {
-                    result[id] = [value];
-                }
-            }
-        }
         JSON.parse(dataJson).forEach( local => {
-            while(local[moment(date).format("M/DD/YY")] && (date < date_now)) {
-                res.push([local.Lat, local.Long, local[moment(date).format("M/DD/YY")], local["Province/State"] + ' ' + local["Country/Region"]]);
+            let i = 0 ;
+            while(date <= date_now) {
+                let value = [local.Long, local.Lat, local[moment(date).format("M/D/YY")], local["Province/State"] + ' ' + local["Country/Region"]];
+                if(res[i])
+                    res[i].push(value);
+                else
+                    res[i] = [value];
                 date.setDate(date.getDate() + 1);
+                i++;
             }
             date = new Date("1/22/2020");
-        })
-        console.log(res == result);
-
-        var options = result.map( (day) => {
+        });
+        var options = res.map( (day) => {
             return {
                 series: {
                     data: day
                 }
             };
         })
+         console.log(options);
 
         chart.setOption({
             timeline: {
