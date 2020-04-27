@@ -12,9 +12,28 @@ const date_now = new Date();
 
 
 function getDataJsonFromCSV(url) {
-    $.get(url, (data) => {
-        return CSVToJSON(data);
+    var data = $.ajax({
+        url: url,
+        dataType: "csv",
+        async: false
+    }).responseText;
+
+    return JSON.parse(CSVToJSON(data));
+}
+
+function getRecoveredNow() {
+    var data = getDataJsonFromCSV(recovered_url);
+    console.log(data);
+    var yesterday = new Date();
+    var recovered = 0;
+    yesterday.setDate(yesterday.getDate() - 1);
+    console.log(moment(yesterday).format("M/D/YY"));
+    data.forEach((location,i) => {
+        var nb_recovered = location[moment(yesterday).format("M/D/YY")];
+        if(typeof nb_recovered !== "undefined" && nb_recovered !== 0)
+            recovered += parseInt(location[moment(yesterday).format("M/D/YY")]);
     })
+    return recovered;
 }
 
 function CSVToArray(csvData, delimiter) {
@@ -86,7 +105,7 @@ function updateMap(url, map) {
                 }
             };
         })
-        
+
         chart.setOption({
             timeline: {
                 axisType: 'category',
@@ -259,7 +278,7 @@ function drawPieChart(pie) {
                 data: [
                     {value: data.latest.confirmed, name: 'Confirmés'},
                     {value: data.latest.deaths, name: 'Morts'},
-                    {value: data.latest.recovered, name: 'Guéris'}
+                    {value: getRecoveredNow(), name: 'Guéris'}
                 ].sort((a, b) => { return a.value - b.value; }),
                 label: {
                     color: 'rgba(255, 255, 255, 0.3)',
@@ -370,13 +389,14 @@ function drawPieChartCountries(pie, country) {
 function getDataGlobal(confirmed,deaths,recovered,pourcentage){
     var data = getDataNow();
     var population = 0;
+    var nb_recovered = getRecoveredNow();
     data.locations.forEach(location => {
         population+=location.population;
     })
     confirmed.innerHTML = numeral(data.latest.confirmed).format('0,0');
     deaths.innerHTML = numeral(data.latest.deaths).format('0,0');
-    recovered.innerHTML = numeral(data.latest.recovered).format('0,0');
-    pourcentage.innerHTML = `${100 * ((data.latest.confirmed+data.latest.deaths+data.latest.recovered) / population).toPrecision(2)} %`
+    recovered.innerHTML = numeral(nb_recovered).format('0,0');
+    pourcentage.innerHTML = `${numeral(100 * ((data.latest.confirmed+data.latest.deaths+nb_recovered) / population)).format("0.00")} %`
 
 
 }
