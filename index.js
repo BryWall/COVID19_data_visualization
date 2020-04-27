@@ -8,7 +8,6 @@ const deaths_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/ma
 const recovered_url = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
 const debut_date = new Date("1/22/2020");
 const date_now = new Date();
-console.log(moment(debut_date).format("M/D/YY"));
 
 
 
@@ -87,8 +86,7 @@ function updateMap(url, map) {
                 }
             };
         })
-         console.log(options);
-
+        
         chart.setOption({
             timeline: {
                 axisType: 'category',
