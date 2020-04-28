@@ -4,9 +4,8 @@
 
 
 function drawGlob(chart) {
+    chart.showLoading();
     $.getJSON("https://coronavirus-tracker-api.herokuapp.com/v2/locations", (data) => {
-        chart.showLoading();
-
         data = data.locations.map((dataItem) => {
             return [dataItem.coordinates.longitude,dataItem.coordinates.latitude, dataItem.latest.confirmed];
         });
@@ -61,6 +60,10 @@ function drawGlob(chart) {
 
         chart.setOption(option);
         chart.hideLoading();
+    }).fail(() => {
+        chart.hideLoading();
+        var main = document.getElementById('main');
+        main.innerText = "There is an error with de Coronavirus Tracker API ..."
     })
 }
 
