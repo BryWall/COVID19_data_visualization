@@ -473,53 +473,54 @@ function getConfirmedCasesPerCountry(country_code="",
 
 	var values = {};
 
-	for (i = 0; i < jsonData.locations.length; i++){
+	for(i = 0; i < jsonData.locations.length; i++) {
 
-		let country = jsonData.locations[i].country;
+	    var country = jsonData.locations[i].country;
 
-		if(timelines){
-			var timelineConfirmed = jsonData.locations[i].timelines.confirmed.timeline;
-			var timelineDeaths = jsonData.locations[i].timelines.deaths.timeline;
-		}
+        if (timelines) {
+            var timelineConfirmed = jsonData.locations[i].timelines.confirmed.timeline; // [stamp: nb]
+            var timelineDeaths = jsonData.locations[i].timelines.deaths.timeline; // [stamp: nb]
+        }
 
-		if(country in values){
-			values[country][0] += jsonData.locations[i].latest.confirmed;
-			values[country][1] += jsonData.locations[i].latest.deaths;
+        if (country in values) {
+            values[country][0] += jsonData.locations[i].latest.confirmed;
+            values[country][1] += jsonData.locations[i].latest.deaths;
 
-			if(timelines){
+            if (timelines) {
 
-				var timelineConfirmedCurrent = values[country][2][0];
-				var timelineDeathsCurrent = values[country][2][1];
+                var currentCountryTimeline = values[country][2];
 
-				for(stamp in timelineConfirmed){
-					timelineConfirmedCurrent[stamp] += timelineConfirmed[stamp];
-				}
+                for (stamp in currentCountryTimeline) {
+                    currentCountryTimeline[stamp]["confirmed"] += timelineConfirmed[stamp];
+                    currentCountryTimeline[stamp]["deaths"] += timelineDeaths[stamp];
+                }
+            }
 
-				for(stamp in timelineDeathsCurrent){
-					timelineDeathsCurrent[stamp] += timelineDeaths[stamp];
-				}
-			}
+        } else {
+            values[country] = [
+                jsonData.locations[i].latest.confirmed,
+                jsonData.locations[i].latest.deaths
+            ];
 
+            if (timelines) {
+                var countryTimeline = {};
 
-		}else{
-			if(timelines){
-				values[country] = [
-					jsonData.locations[i].latest.confirmed,
-					jsonData.locations[i].latest.deaths,
-					[
-						timelineConfirmed,
-						timelineDeaths
-					]
-				];
-			}else{
-				values[country] = [
-					jsonData.locations[i].latest.confirmed,
-					jsonData.locations[i].latest.deaths
-				];
-			}
+                for(datetime in timelineConfirmed){
 
-		}
-	}
+                    countryTimeline[datetime] = {};
+
+                    countryTimeline[datetime]["confirmed"] = timelineConfirmed[datetime];
+                    countryTimeline[datetime]["deaths"] = timelineDeaths[datetime];
+                }
+
+                values[country] = [
+                    jsonData.locations[i].latest.confirmed,
+                    jsonData.locations[i].latest.deaths,
+                    countryTimeline
+                ]
+            }
+        }
+    }
 
 	return values;
 }
@@ -554,7 +555,7 @@ function getNCountriesWithMostCases(countryCases, n){
 
 }
 
-function buildCurvesChart(nbCountriesShowed=5) {
+function buildCurvesChart(nbCountriesShowed=6, dataShowed="confirmed") {
 	// à voir pour faire une fonction qui récup toutes les dates depuis le 01/22
 	var dom = document.getElementById("curves");
 	var myChart = echarts.init(dom);
@@ -569,39 +570,54 @@ function buildCurvesChart(nbCountriesShowed=5) {
 
 	var confirmed = {};
 	var deaths = {};
+	var dates = [];
+    var series = [];
+    var data;
+
+    switch(dataShowed){
+        default:
+            console.log("Oops");
+            break;
+        case "confirmed":
+            data = confirmed;
+            break;
+        case "deaths":
+            data = deaths;
+            break
+    }
 
 	for(i = 0; i < mostHitCountries.length; i++){
-		var confirmedTimeline = valuesPerCountry[mostHitCountries[i]][2][0];
-		var deathTimeline = valuesPerCountry[mostHitCountries[i]][2][1];
-		var dates = [];
+	    var country = mostHitCountries[i];
 
-		confirmed[mostHitCountries[i]] = [];
-		deaths[mostHitCountries[i]] = [];
+		var countryTimeline = valuesPerCountry[country][2];
 
-		for(timestamp in confirmedTimeline){
-			dates.push(timestamp);
-			confirmed[mostHitCountries[i]].push(confirmedTimeline[timestamp]);
-		}
+		confirmed[country] = [];
+		deaths[country] = [];
 
-		for(timestamp in deathTimeline){
-			deaths[mostHitCountries[i]].push(deathTimeline[timestamp]);
-		}
+		for(entry in countryTimeline){
+		    var confirmedNumber = countryTimeline[entry]["confirmed"];
+            var deathsNumber = countryTimeline[entry]["deaths"];
+
+            confirmed[country].push(confirmedNumber);
+            deaths[country].push(deathsNumber);
+        }
+
+        var seriesEntry = {
+            name: country,
+            type: 'line',
+            data: data[country],
+        };
+
+        series.push(seriesEntry);
 
 	}
 
-	var series = [];
+	// construction de la liste des dates
+    var sample = valuesPerCountry[country][2];
 
-	mostHitCountries.forEach(country => {
-		var entry = {
-			name: country,
-			type: 'line',
-			data: confirmed[country],
-		};
-
-		series.push(entry);
-	})
-
-    console.log(series);
+	for(date in sample){
+	    dates.push(date);
+    }
 
 	option = {
 		title: {
@@ -744,12 +760,13 @@ $(document).ready(function() {
 	var selectNbBC = document.getElementById("nbVisibleCountriesBarChart");
 	var selectDataBC = document.getElementById("dataShowedBarChart");
 
-	var selectNbLC = document.getElementById("nbVisibleCountriesLineChart");
+	//var selectNbLC = document.getElementById("nbVisibleCountriesLineChart");
+	var selectDataLC = document.getElementById("dataShowedLineChart");
 
-	selectNbLC.onchange = () => {
+	/*selectNbLC.onchange = () => {
 		var intNb = parseInt(selectNbLC.value);
-		buildCurvesChart(intNb);
-	}
+		buildCurvesChart(intNb, selectDataLC.value);
+	}*/
 
 	selectNbBC.onchange = () => {
 		var intNb = parseInt(selectNbBC.value);
@@ -760,5 +777,9 @@ $(document).ready(function() {
 		var intNb = parseInt(selectNbBC.value);
 		buildBarChartCases(intNb, selectDataBC.value);
 	}
+
+    selectDataLC.onchange = () => {
+        buildCurvesChart(6, selectDataLC.value);
+    }
 
 });
