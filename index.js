@@ -431,3 +431,332 @@ window.addEventListener('load', () => {
     deaths_button.onclick = () => { updateMap(deaths_url,map) }
     recovered_button.onclick = () => { updateMap(recovered_url,map) }
 })
+
+// code Romain test
+
+/*function getDaysFromDate(startingDate){
+	var date = startingDate;
+	var record = [startingDate.toLocaleDateString()];
+	
+	while(date !== date_now){
+		var theDayAfter = new Date(date);
+		
+		theDayAfter.setDate(theDayAfter.getDate()+1);
+		
+		record.push(theDayAfter.toLocaleDateString());
+		
+		date = theDayAfter;
+	}
+	
+	return record;
+}*/
+
+function getConfirmedCasesPerCountry(country_code="",
+									 province="",
+									 county="",
+									 source="jhu",
+									 timelines=false){
+
+	var queryUrl = "https://coronavirus-tracker-api.herokuapp.com/v2/locations?source="+source+"&timelines="+timelines;
+
+	if(country_code !== "") { queryUrl += ("&country_code="+country_code) };
+	if(province !== "") { queryUrl += ("&province="+province) };
+	if(county !== "") { queryUrl += ("&county="+county) };
+
+	var dataUrl = $.ajax({
+		url: queryUrl,
+		dataType: "json",
+		async: false
+	}).responseText;
+
+	var jsonData = JSON.parse(dataUrl);
+
+	var values = {};
+
+	for (i = 0; i < jsonData.locations.length; i++){
+
+		let country = jsonData.locations[i].country;
+
+		if(timelines){
+			var timelineConfirmed = jsonData.locations[i].timelines.confirmed.timeline;
+			var timelineDeaths = jsonData.locations[i].timelines.deaths.timeline;
+		}
+
+		if(country in values){
+			values[country][0] += jsonData.locations[i].latest.confirmed;
+			values[country][1] += jsonData.locations[i].latest.deaths;
+
+			if(timelines){
+
+				var timelineConfirmedCurrent = values[country][2][0];
+				var timelineDeathsCurrent = values[country][2][1];
+
+				for(stamp in timelineConfirmed){
+					timelineConfirmedCurrent[stamp] += timelineConfirmed[stamp];
+				}
+
+				for(stamp in timelineDeathsCurrent){
+					timelineDeathsCurrent[stamp] += timelineDeaths[stamp];
+				}
+			}
+
+
+		}else{
+			if(timelines){
+				values[country] = [
+					jsonData.locations[i].latest.confirmed,
+					jsonData.locations[i].latest.deaths,
+					[
+						timelineConfirmed,
+						timelineDeaths
+					]
+				];
+			}else{
+				values[country] = [
+					jsonData.locations[i].latest.confirmed,
+					jsonData.locations[i].latest.deaths
+				];
+			}
+
+		}
+	}
+
+	return values;
+}
+
+function getNCountriesWithMostCases(countryCases, n){
+	// renvoie les n pays avec les plus grands nombres de cas
+
+	var countries = {...countryCases};
+
+	var results = [];
+
+	while(n != 0){
+
+		let max = 0;
+		let maxCountry = "";
+
+		for(country in countries){
+			if(countries[country][0] > max) {
+				max = countries[country][0];
+				maxCountry = country;
+			}
+		}
+
+		results.push(maxCountry);
+
+		delete countries[maxCountry];
+
+		n = n-1;
+	}
+
+	return results;
+
+}
+
+function buildCurvesChart(nbCountriesShowed=5) {
+	// à voir pour faire une fonction qui récup toutes les dates depuis le 01/22
+	var dom = document.getElementById("curves");
+	var myChart = echarts.init(dom);
+
+	var valuesPerCountry = getConfirmedCasesPerCountry(country_code="",
+		province="",
+		county="",
+		source="jhu",
+		timelines=true);
+		
+	var mostHitCountries = getNCountriesWithMostCases(valuesPerCountry, nbCountriesShowed);
+
+	var confirmed = {};
+	var deaths = {};
+
+	for(i = 0; i < mostHitCountries.length; i++){
+		var confirmedTimeline = valuesPerCountry[mostHitCountries[i]][2][0];
+		var deathTimeline = valuesPerCountry[mostHitCountries[i]][2][1];
+		var dates = [];
+
+		confirmed[mostHitCountries[i]] = [];
+		deaths[mostHitCountries[i]] = [];
+
+		for(timestamp in confirmedTimeline){
+			dates.push(timestamp);
+			confirmed[mostHitCountries[i]].push(confirmedTimeline[timestamp]);
+		}
+
+		for(timestamp in deathTimeline){
+			deaths[mostHitCountries[i]].push(deathTimeline[timestamp]);
+		}
+
+	}
+
+	var series = [];
+
+	mostHitCountries.forEach(country => {
+		var entry = {
+			name: country,
+			type: 'line',
+			data: confirmed[country],
+		};
+
+		series.push(entry);
+	})
+
+	option = {
+		title: {
+			text: 'Courbes'
+		},
+		tooltip: {
+			trigger: 'axis'
+		},
+		legend: {
+			data: mostHitCountries
+		},
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '3%',
+			containLabel: true
+		},
+		toolbox: {
+			feature: {
+				saveAsImage: {}
+			}
+		},
+		xAxis: {
+			type: 'category',
+			boundaryGap: false,
+			data: dates
+		},
+		yAxis: {
+			type: 'value'
+		},
+		series: series
+	};
+
+	if (option && typeof option === "object") {
+		myChart.setOption(option, true);
+	}
+
+}
+
+function buildBarChartCases(nbCountriesShowed=5, dataShowed="nbConfirmedCases") {
+
+	var dom = document.getElementById("barchart");
+	var myChart = echarts.init(dom);
+	
+	var valuesPerCountry = getConfirmedCasesPerCountry();
+
+	var mostHitCountries = getNCountriesWithMostCases(valuesPerCountry, nbCountriesShowed);
+
+	var countries = [];
+	var infections = [];
+	var deaths = [];
+	var ratios = [];
+
+	for (i = 0; i < mostHitCountries.length; i++) {
+
+		let country = mostHitCountries[i];
+		let infection = valuesPerCountry[country][0];
+		let death = valuesPerCountry[country][1];
+		let ratio = ((death/infection) * 100);
+
+		countries.push(country);
+		infections.push(infection);
+		deaths.push(death);
+		ratios.push(ratio);
+	}
+
+	var series = [];
+
+	switch(dataShowed){
+		default:
+			console.log("Problemo gringo");
+		case "deathRatio":
+			var displayText = "Rapport décès/cas confirmés";
+			var displayData = ["Ratio"];
+			series = [
+				{
+					name: 'Rapport',
+					type: 'bar',
+					data: ratios
+				}
+			];
+			break;
+		case "nbConfirmedCases":
+			var displayText = "Cas confirmés";
+			var displayData = ['Infections', 'Décès'];
+			series = [
+				{
+					name: 'Infections',
+					type: 'bar',
+					data: infections
+				},
+				{
+					name: 'Décès',
+					type: 'bar',
+					data: deaths
+				}
+			];
+			break;
+	}
+
+	option = {
+		title: {
+			text: displayText,
+		},
+		tooltip: {
+			trigger: 'axis',
+			axisPointer: {
+				type: 'shadow'
+			}
+		},
+		legend: {
+			data: displayData
+		},
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '3%',
+			containLabel: true
+		},
+		xAxis: {
+			type: 'value',
+			boundaryGap: [0, 0.01]
+		},
+		yAxis: {
+			type: 'category',
+			data: countries
+		},
+		series: series
+	};
+
+	if (option && typeof option === "object") {
+		myChart.setOption(option, true);
+	}
+}
+
+$(document).ready(function() {
+	buildBarChartCases();
+	buildCurvesChart();
+
+	var selectNbBC = document.getElementById("nbVisibleCountriesBarChart");
+	var selectDataBC = document.getElementById("dataShowedBarChart");
+
+	var selectNbLC = document.getElementById("nbVisibleCountriesLineChart");
+
+	selectNbLC.onclick = () => {
+		var intNb = parseInt(selectNbLC.value);
+		buildCurvesChart(intNb);
+	}
+
+	selectNbBC.onclick = () => {
+		var intNb = parseInt(selectNbBC.value);
+		buildBarChartCases(intNb, selectDataBC.value);
+	}
+
+	selectDataBC.onchange = () => {
+		var intNb = parseInt(selectNbBC.value);
+		buildBarChartCases(intNb, selectDataBC.value);
+	}
+
+});

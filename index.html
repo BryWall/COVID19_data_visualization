@@ -45,6 +45,16 @@
                   <i class="fas fa-chart-pie"></i> Proportion des cas par pays
                 </a>
               </li>
+			  <li class="nav-item">
+                <a class="nav-link" href="#barchart">
+                  <i class="fas fa-poll-h"></i> Barcharts
+                </a>
+              </li>
+			  <li class="nav-item">
+                <a class="nav-link" href="#curves">
+                  <i class="fas fa-chart-line"></i> Courbes variées
+                </a>
+              </li>
             </ul>
 
             <div class="dropdown-divider"></div>
@@ -97,13 +107,52 @@
           </div>
 
           <div class="dropdown-divider"></div>
+		  
+		  <!-- code Romain test -->
+		  <div id="updateBarChart">
+			<div class="col-md-9 mx-auto text-center">
+				<label for="nbpays" style="font-size: 20px;">Pays à afficher : </label>
+			   <select id="nbVisibleCountriesBarChart">
+				   <option value="3">3</option>
+				   <option value="4">4</option>
+				   <option value="5">5</option>
+				   <option value="6">6</option>
+			   </select>
 
+			   <select id="dataShowedBarChart">
+				<label for="datashowed" style="font-size: 20px;">Données à afficher : </label>
+				   <option value="nbConfirmedCases">Nombres de cas</option>
+				   <option value="deathRatio">Rapport mort/cas</option>
+			   </select>
+			   </div>
+			</div>
+			
+		  <div id="barchart" class="chart mx-auto" style="height: 1000px; width: 800px;"></div>
+			
+			<div class="dropdown-divider"></div>
 
+			<div id="updateLineChart">
+		   <div class="col-md-9 mx-auto text-center">
+			<label for="nbpays" style="font-size: 20px;">Pays à afficher : </label>
+			   <select id="nbVisibleCountriesLineChart">
+				   <option value="3">3</option>
+				   <option value="4">4</option>
+				   <option value="5">5</option>
+				   <option value="6">6</option>
+				   <option value="7">7</option>
+			   </select>
+			   </div>
+		   </div>
+		   
+		   <div id="curves" class="chart mx-auto" style="height: 1000px; width: 800px;"></div>
+
+		   
         </main>
       </div>
 
     </div>
 
+	<div class="dropdown-divider"></div>
 
     <footer class="text-muted">
       <div class="container col-md-6">
