@@ -23,7 +23,9 @@ function drawGlob(chart) {
                     }
                 },
                 viewControl: {
-                    autoRotate: true
+                    autoRotate: true,
+                    distance: 200,
+                    targetCoord: [2.2137, 20.2276]
                 }
             },
             visualMap: {
