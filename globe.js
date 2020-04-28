@@ -40,7 +40,7 @@ function drawGlob(chart) {
                 },
                 controller: {
                     inRange: {
-                        color: 'orange'
+                        color: 'red'
                     }
                 },
                 outOfRange: {
@@ -55,7 +55,7 @@ function drawGlob(chart) {
                 minHeight: 0.2,
                 silent: true,
                 itemStyle: {
-                    color: 'orange'
+                    color: 'red'
                 }
             }]
         };

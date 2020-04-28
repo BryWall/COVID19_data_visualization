@@ -601,6 +601,8 @@ function buildCurvesChart(nbCountriesShowed=5) {
 		series.push(entry);
 	})
 
+    console.log(series);
+
 	option = {
 		title: {
 			text: 'Courbes'
@@ -625,7 +627,7 @@ function buildCurvesChart(nbCountriesShowed=5) {
 		xAxis: {
 			type: 'category',
 			boundaryGap: false,
-			data: dates
+			data: dates.map((date) => {return moment(date).format("M/D/YY")}),
 		},
 		yAxis: {
 			type: 'value'
@@ -744,12 +746,12 @@ $(document).ready(function() {
 
 	var selectNbLC = document.getElementById("nbVisibleCountriesLineChart");
 
-	selectNbLC.onclick = () => {
+	selectNbLC.onchange = () => {
 		var intNb = parseInt(selectNbLC.value);
 		buildCurvesChart(intNb);
 	}
 
-	selectNbBC.onclick = () => {
+	selectNbBC.onchange = () => {
 		var intNb = parseInt(selectNbBC.value);
 		buildBarChartCases(intNb, selectDataBC.value);
 	}
