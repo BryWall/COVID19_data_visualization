@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "echarts": "^4.7.0",
+    "echarts-gl": "^1.1.1",
     "echarts-leaflet": "^1.1.0",
     "jquery": "^3.5.0",
     "leaflet": "^1.6.0",

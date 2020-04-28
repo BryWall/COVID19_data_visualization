@@ -403,6 +403,8 @@ function getDataGlobal(confirmed,deaths,recovered,pourcentage){
 
 
 
+
+
 window.addEventListener('load', () => {
     //init var
     var confirmed_button = document.getElementById("btn_confirmed");
